@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "827909531523",
+    "firebase_url": "https://chatapp-f1c40.firebaseio.com",
+    "project_id": "chatapp-f1c40",
+    "storage_bucket": "chatapp-f1c40.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:827909531523:android:b68b9b986220d67d",
+        "android_client_info": {
+          "package_name": "com.skripsi.chatapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "827909531523-3jco7qkgiac664cipbggulfhb2f3rfd1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.skripsi.chatapp",
+            "certificate_hash": "3f989de35271720c6a45251af1437a6e461d183b"
+          }
+        },
+        {
+          "client_id": "827909531523-ddh3hg4o6mp0d78p8a1fdg9qc6c7c3gg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDEzarqKfoQzyjfRraZV0lRBXwPeNmOeU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "827909531523-ddh3hg4o6mp0d78p8a1fdg9qc6c7c3gg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
