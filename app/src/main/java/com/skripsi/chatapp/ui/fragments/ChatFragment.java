@@ -92,7 +92,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
         mETxtMessage.setOnEditorActionListener(this);
 
         mChatPresenter = new ChatPresenter(this);
-        mChatPresenter.getMessage(FirebaseAuth.getInstance().getCurrentUser().getUid(),
+        mChatPresenter.getMessage(getContext(), FirebaseAuth.getInstance().getCurrentUser().getUid(),
                 getArguments().getString(Constants.ARG_RECEIVER_UID));
     }
 
@@ -152,7 +152,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     @Subscribe
     public void onPushNotificationEvent(PushNotificationEvent pushNotificationEvent) {
         if (mChatRecyclerAdapter == null || mChatRecyclerAdapter.getItemCount() == 0) {
-            mChatPresenter.getMessage(FirebaseAuth.getInstance().getCurrentUser().getUid(),
+            mChatPresenter.getMessage(getContext(), FirebaseAuth.getInstance().getCurrentUser().getUid(),
                     pushNotificationEvent.getUid());
         }
     }

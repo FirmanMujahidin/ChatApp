@@ -1,9 +1,20 @@
 package com.skripsi.chatapp.core.login;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
+import com.skripsi.chatapp.core.users.add.AddUserInteractor;
+import com.skripsi.chatapp.utils.Authenticator;
 import com.skripsi.chatapp.utils.Constants;
 import com.skripsi.chatapp.utils.SharedPrefUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -20,7 +31,7 @@ import static android.content.ContentValues.TAG;
  * Project: Chatapp
  */
 
-public class LoginInteractor implements LoginContract.Interactor {
+public class LoginInteractor extends AppCompatActivity implements LoginContract.Interactor {
     private LoginContract.OnLoginListener mOnLoginListener;
 
     public LoginInteractor(LoginContract.OnLoginListener onLoginListener) {
@@ -43,6 +54,35 @@ public class LoginInteractor implements LoginContract.Interactor {
                             mOnLoginListener.onSuccess(task.getResult().toString());
                             updateFirebaseToken(task.getResult().getUser().getUid(),
                                     new SharedPrefUtil(activity.getApplicationContext()).getString(Constants.ARG_FIREBASE_TOKEN, null));
+                            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+                            DatabaseReference mostafa = ref.child("users").child(task.getResult().getUser().getUid());
+                            final String uid = task.getResult().getUser().getUid();
+                            mostafa.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    String email = dataSnapshot.child("email").getValue(String.class);
+                                    String rsaPublicKkey = dataSnapshot.child("rsaPublicKey").getValue(String.class);
+                                    String rsaPrivateKey = dataSnapshot.child("rsaPrivateKey").getValue(String.class);
+
+                                    //do what you want with the email
+                                    Account account = new Account(email, Authenticator.ACCOUNT_TYPE);
+                                    AccountManager accountManager = AccountManager.get(activity);
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("publickey_rsa",rsaPublicKkey);
+                                    bundle.putString("privatekey_rsa",rsaPrivateKey);
+                                    bundle.putString("email",email);
+
+                                    accountManager.addAccountExplicitly(account, null, bundle);
+                                    accountManager.setAuthToken(account, Authenticator.ACCOUNT_TYPE, uid);
+                                    System.out.println("TOKEN => " + accountManager.peekAuthToken(account, Authenticator.ACCOUNT_TYPE));
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
                         } else {
                             mOnLoginListener.onFailure(task.getException().getMessage());
                         }

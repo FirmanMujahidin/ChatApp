@@ -1,10 +1,17 @@
 package com.skripsi.chatapp.core.users.add;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 
 import com.skripsi.chatapp.R;
+import com.skripsi.chatapp.javalib.FileEncryptionManager;
 import com.skripsi.chatapp.models.User;
+import com.skripsi.chatapp.ui.activities.LoginActivity;
+import com.skripsi.chatapp.utils.Authenticator;
 import com.skripsi.chatapp.utils.Constants;
 import com.skripsi.chatapp.utils.SharedPrefUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,11 +30,22 @@ public class AddUserInteractor implements AddUserContract.Interactor {
     }
 
     @Override
-    public void addUserToDatabase(final Context context, FirebaseUser firebaseUser) {
+    public void addUserToDatabase(final Context context, final FirebaseUser firebaseUser) {
+        FileEncryptionManager mFileEncryptionManager = FileEncryptionManager.getInstance();
+        try {
+            mFileEncryptionManager.generateKey();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        final String rsaPublicKey = mFileEncryptionManager.getPublicKey();
+        final String rsaPrivateKey = mFileEncryptionManager.getPrivateKey();
         User user = new User(firebaseUser.getUid(),
                 firebaseUser.getEmail(),
-                new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN));
+                new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
+                rsaPublicKey,
+                rsaPrivateKey);
         database.child(Constants.ARG_USERS)
                 .child(firebaseUser.getUid())
                 .setValue(user)

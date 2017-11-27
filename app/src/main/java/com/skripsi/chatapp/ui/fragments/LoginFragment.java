@@ -71,7 +71,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
     }
 
     private void setDummyCredentials() {
-        mETxtEmail.setText("firmanmujahidin@gmail.com");
+        mETxtEmail.setText("dani@mail.com");
         mETxtPassword.setText("123456");
     }
 
