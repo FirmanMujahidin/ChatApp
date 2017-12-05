@@ -1,17 +1,11 @@
 package com.skripsi.chatapp.core.users.add;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
 import com.skripsi.chatapp.R;
 import com.skripsi.chatapp.javalib.FileEncryptionManager;
 import com.skripsi.chatapp.models.User;
-import com.skripsi.chatapp.ui.activities.LoginActivity;
-import com.skripsi.chatapp.utils.Authenticator;
 import com.skripsi.chatapp.utils.Constants;
 import com.skripsi.chatapp.utils.SharedPrefUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -19,7 +13,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
 
 
 public class AddUserInteractor implements AddUserContract.Interactor {

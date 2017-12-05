@@ -21,8 +21,8 @@ public class ChatPresenter implements ChatContract.Presenter, ChatContract.OnSen
     }
 
     @Override
-    public void sendMessage(Context context, Chat chat, String receiverFirebaseToken) {
-        mChatInteractor.sendMessageToFirebaseUser(context, chat, receiverFirebaseToken);
+    public void sendMessage(Context context, Chat chat, String receiverFirebaseToken, String receiverRsaPublicKey, String receiverRsaPrivateKey) {
+        mChatInteractor.sendMessageToFirebaseUser(context, chat, receiverFirebaseToken, receiverRsaPublicKey, receiverRsaPrivateKey);
     }
 
     @Override

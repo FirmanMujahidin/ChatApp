@@ -13,7 +13,7 @@ public interface RegisterContract {
     }
 
     interface Presenter {
-        void register(Activity activity, String email, String password);
+        void register(Activity activity,String email, String password);
     }
 
     interface Interactor {

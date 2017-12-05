@@ -96,6 +96,8 @@ public class UsersFragment extends Fragment implements GetUsersContract.View, It
         ChatActivity.startActivity(getActivity(),
                 mUserListingRecyclerAdapter.getUser(position).email,
                 mUserListingRecyclerAdapter.getUser(position).uid,
+                mUserListingRecyclerAdapter.getUser(position).rsaPublicKey,
+                mUserListingRecyclerAdapter.getUser(position).rsaPrivateKey,
                 mUserListingRecyclerAdapter.getUser(position).firebaseToken);
     }
 

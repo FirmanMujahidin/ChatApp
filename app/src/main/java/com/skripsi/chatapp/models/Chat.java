@@ -10,29 +10,38 @@ public class Chat  {
     public String receiver;
     public String senderUid;
     public String receiverUid;
-    public String message;
+    public String messageFrom;
+    public String messageTo;
     public long timestamp;
 
     public Chat(){
 
     }
 
-    public Chat(String sender, String receiver, String senderUid, String receiverUid, String message, long timestamp){
+    public Chat(String sender, String receiver, String senderUid, String receiverUid, String messageFrom, String messageTo, long timestamp){
         this.sender = sender;
         this.receiver = receiver;
         this.senderUid = senderUid;
         this.receiverUid = receiverUid;
-        this.message = message;
+        this.messageFrom = messageFrom;
+        this.messageTo = messageTo;
         this.timestamp = timestamp;
-
     }
 
 
-    public String getMessage() {
-        return message;
+    public String getMessageFrom() {
+        return messageFrom;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setMessageFrom(String messageFrom) {
+        this.messageFrom = messageFrom;
+    }
+
+    public String getMessageTo() {
+        return messageTo;
+    }
+
+    public void setMessageTo(String messageTo) {
+        this.messageTo = messageTo;
     }
 }

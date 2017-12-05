@@ -42,11 +42,16 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
 
     public static ChatFragment newInstance(String receiver,
                                            String receiverUid,
-                                           String firebaseToken) {
+                                           String firebaseToken,
+                                           String receiverRsaPublicKey,
+                                           String receverRsaPrivateKey) {
         Bundle args = new Bundle();
         args.putString(Constants.ARG_RECEIVER, receiver);
         args.putString(Constants.ARG_RECEIVER_UID, receiverUid);
         args.putString(Constants.ARG_FIREBASE_TOKEN, firebaseToken);
+        args.putString("receiverRsaPublicKey", receiverRsaPublicKey);
+        args.putString("receverRsaPrivateKey", receverRsaPrivateKey);
+
         ChatFragment fragment = new ChatFragment();
         fragment.setArguments(args);
         return fragment;
@@ -107,6 +112,10 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
 
     private void sendMessage() {
         String message = mETxtMessage.getText().toString();
+        String messageTo = mETxtMessage.getText().toString();
+        String receiverRsaPublicKey  = getArguments().getString("receiverRsaPublicKey");
+        String receiverRsaPrivateKey = getArguments().getString("receverRsaPrivateKey");
+
         String receiver = getArguments().getString(Constants.ARG_RECEIVER);
         String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);
         String sender = FirebaseAuth.getInstance().getCurrentUser().getEmail();
@@ -117,10 +126,13 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
                 senderUid,
                 receiverUid,
                 message,
+                messageTo,
                 System.currentTimeMillis());
         mChatPresenter.sendMessage(getActivity().getApplicationContext(),
                 chat,
-                receiverFirebaseToken);
+                receiverFirebaseToken,
+                receiverRsaPublicKey,
+                receiverRsaPrivateKey);
     }
 
     @Override

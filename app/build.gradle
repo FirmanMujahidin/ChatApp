@@ -48,6 +48,12 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
     compile 'com.github.scottyab:showhidepasswordedittext:0.8'
+    compile 'com.madgag.spongycastle:core:1.51.0.0'
+    compile 'com.madgag.spongycastle:prov:1.51.0.0'
+    compile 'com.madgag.spongycastle:pkix:1.51.0.0'
+    compile 'com.madgag.spongycastle:pg:1.51.0.0'
+
+    compile 'com.scottyab:aescrypt:0.0.1'
 
 }
 apply plugin: 'com.google.gms.google-services'

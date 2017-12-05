@@ -1,18 +1,19 @@
 package com.skripsi.chatapp.core.chat;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.scottyab.aescrypt.AESCrypt;
 import com.skripsi.chatapp.fcm.FcmNotificationBuilder;
 import com.skripsi.chatapp.javalib.Base64Utils;
 import com.skripsi.chatapp.javalib.FileEncryptionManager;
 import com.skripsi.chatapp.models.Chat;
 import com.skripsi.chatapp.utils.Authenticator;
 import com.skripsi.chatapp.utils.Constants;
+import com.skripsi.chatapp.utils.RSAUtil;
 import com.skripsi.chatapp.utils.SharedPrefUtil;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -22,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
+import java.security.GeneralSecurityException;
 
 /**
  * Author: firman mujahidin
@@ -31,8 +33,7 @@ import java.io.File;
 
 public class ChatInteractor extends AppCompatActivity implements ChatContract.Interactor {
     private static final String TAG = "ChatInteractor";
-    FileEncryptionManager mFileEncryptionManager = FileEncryptionManager.getInstance();
-
+    String messageRsa;
     private ChatContract.OnSendMessageListener mOnSendMessageListener;
     private ChatContract.OnGetMessagesListener mOnGetMessagesListener;
 
@@ -51,27 +52,53 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
     }
 
     @Override
-    public void sendMessageToFirebaseUser(final Context context, final Chat chat, final String receiverFirebaseToken) {
+    public void sendMessageToFirebaseUser(final Context context, final Chat chat, final String receiverFirebaseToken, final String receiverRsaPublicKey, final String receiverRsaPrivateKey) {
         File saveEncryPath, saveDecryPath;
         String publicKey, privateKey;
+
+        Log.d(TAG, "chatDebug"+ chat.getMessageFrom());
+        Log.d(TAG, "chatDebug"+ chat.getMessageTo());
+        Log.d(TAG, "paramsPub" + receiverRsaPublicKey);
+        Log.d(TAG, "paramsPri" + receiverRsaPrivateKey);
+
+
+        //ini implementai AES
+/*
+        String password = "password";
+        String encryptedMsg = "WsZSUlTlZ+bbQBqrPFJpTZU/qNyOdozIaqNRH6trNLc=";
+        String decrypteMsg = "Ini tes encrip aes";
+        try {
+            String messageAfterDecrypt = AESCrypt.decrypt(password, encryptedMsg);
+            String massageDecrypt = AESCrypt.encrypt(password,decrypteMsg);
+
+            Log.d(TAG, "AesDec : " + messageAfterDecrypt);
+            Log.d(TAG, "AesEec : " + massageDecrypt);
+
+        }catch (GeneralSecurityException e){
+            //handle error - could be due to incorrect password or tampered encryptedMsg
+        }
+*/
+
 
         File sdcard = Environment.getExternalStorageDirectory();
         saveEncryPath = new File(sdcard.getPath()+"/diapers_encry.txt");
         saveDecryPath = new File(sdcard.getPath()+"/diapers_decry.txt");
 
         try {
+            String publicKeyRsaTo = receiverRsaPublicKey;
             String publickeyRsaFrom = Authenticator.getBundle(context, "publickey_rsa");
             String privatekeyRsaFrom = Authenticator.getBundle(context, "privatekey_rsa");
-            Log.d(TAG, "asdf: "+publickeyRsaFrom);
+            Log.d(TAG, "pubkeyFrom: "+publickeyRsaFrom);
+            Log.d(TAG, "priKeyFrom: "+privatekeyRsaFrom);
 
-            mFileEncryptionManager.setRSAKey(publickeyRsaFrom, privatekeyRsaFrom, true);
+            String rsaEncryptFrom = RSAUtil.encrypt(chat.getMessageFrom(), publickeyRsaFrom);
+            String rsaEncryptTo = RSAUtil.encrypt(chat.getMessageFrom(), receiverRsaPublicKey);
+            Log.d(TAG, "rsaUtilEnc " + rsaEncryptFrom);
+            Log.d(TAG, "rsaUtilDec " + RSAUtil.decrypt(rsaEncryptFrom, privatekeyRsaFrom));
+            Log.d(TAG, "plaintext" + chat.getMessageFrom());
 
-            byte[] encryptByte = mFileEncryptionManager.encryptByPublicKey(chat.message.getBytes());
-            String afterencrypt = Base64Utils.encode(encryptByte);
-//            byte[] decryptByte = mFileEncryptionManager.decryptByPrivateKey(Base64Utils.decode(afterencrypt));
-//            Log.d(TAG, "message_enc: " + afterencrypt);
-//            Log.d(TAG, "message_dec: "+ new String(decryptByte));
-            chat.setMessage(afterencrypt);
+            chat.setMessageFrom(rsaEncryptFrom);
+            chat.setMessageTo(rsaEncryptTo);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,22 +113,19 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChild(room_type_1)) {
-                    Log.d(TAG, "room1");
-                    Log.e(TAG, "sendMessageToFirebaseUser: " + room_type_1 + " exists");
+                    Log.d(TAG, "room1: " + room_type_1 + chat);
                     databaseReference.child(Constants.ARG_CHAT_ROOMS).child(room_type_1).child(String.valueOf(chat.timestamp)).setValue(chat);
                 } else if (dataSnapshot.hasChild(room_type_2)) {
-                    Log.d(TAG, "room2");
-                    Log.e(TAG, "sendMessageToFirebaseUser: " + room_type_2 + " exists");
+                    Log.d(TAG, "room2: " + room_type_2 + chat);
                     databaseReference.child(Constants.ARG_CHAT_ROOMS).child(room_type_2).child(String.valueOf(chat.timestamp)).setValue(chat);
                 } else {
-                    Log.d(TAG, "room3");
-                    Log.e(TAG, "sendMessageToFirebaseUser: success");
+                    Log.d(TAG, "room3" + chat);
                     databaseReference.child(Constants.ARG_CHAT_ROOMS).child(room_type_1).child(String.valueOf(chat.timestamp)).setValue(chat);
                     getMessageFromFirebaseUser(context, chat.senderUid, chat.receiverUid);
                 }
                 // send push notification to the receiver
                 sendPushNotificationToReceiver(chat.sender,
-                        chat.message,
+                        chat.messageFrom,
                         chat.senderUid,
                         new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
                         receiverFirebaseToken);
@@ -110,7 +134,7 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                mOnSendMessageListener.onSendMessageFailure("Unable to send message: " + databaseError.getMessage());
+                mOnSendMessageListener.onSendMessageFailure("Unable to send messageFrom: " + databaseError.getMessage());
             }
         });
     }
@@ -132,6 +156,7 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
 
     @Override
     public void getMessageFromFirebaseUser(final Context context, String senderUid, String receiverUid) {
+        Log.d(TAG, "senderUid : " + senderUid);
         final String room_type_1 = senderUid + "_" + receiverUid;
         final String room_type_2 = receiverUid + "_" + senderUid;
 
@@ -142,7 +167,7 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // POSISI SEBAGAI PENGIRIM
                 if (dataSnapshot.hasChild(room_type_1)) {
-                    Log.e(TAG, "getMessageFromFirebaseUser: " + room_type_1 + " exists");
+                    Log.e(TAG, "getMessageFromFirebaseUserRoom1: " + room_type_1 + " exists");
                     FirebaseDatabase.getInstance()
                             .getReference()
                             .child(Constants.ARG_CHAT_ROOMS)
@@ -153,12 +178,27 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
                                 Chat chat = dataSnapshot.getValue(Chat.class);
                                 String publickeyRsaFrom = Authenticator.getBundle(context, "publickey_rsa");
                                 String privatekeyRsaFrom = Authenticator.getBundle(context, "privatekey_rsa");
-                                mFileEncryptionManager.setRSAKey(publickeyRsaFrom, privatekeyRsaFrom, true);
-                                byte[] decryptByte = mFileEncryptionManager.decryptByPrivateKey(Base64Utils.decode(chat.getMessage()));
-                                Log.d(TAG, "onDataChangeasd: "+ new String(decryptByte));
-                                chat.setMessage(new String(decryptByte));
+                                String email = Authenticator.getBundle(context, "email");
+                                Log.d(TAG, "ifcondition : "+ (chat.receiver.equals(email)));
+                                Log.d(TAG, "receiver" + chat.receiver);
+                                Log.d(TAG, "auth " + email);
+                                if (chat.receiver.equals(email)){
+                                    messageRsa = chat.getMessageTo();
+                                }
+                                else{
+                                    messageRsa = chat.getMessageFrom();
+                                }
+
+                                Log.d(TAG, "getMessagePubKey : " +publickeyRsaFrom);
+                                Log.d(TAG, "getMessagePrivKey : " +privatekeyRsaFrom);
+
+                                String rsaDecrypt = RSAUtil.decrypt(messageRsa, privatekeyRsaFrom);
+                                Log.d(TAG, "messageEnc" + chat.getMessageFrom());
+                                Log.d(TAG, "room1: "+ rsaDecrypt);
+                                chat.setMessageFrom(rsaDecrypt);
                                 mOnGetMessagesListener.onGetMessagesSuccess(chat);
                             } catch (Exception e) {
+                                Log.d(TAG, "errorRoom1"+e.getMessage());
                                 e.getMessage();
                             }
                         }
@@ -180,11 +220,11 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-                            mOnGetMessagesListener.onGetMessagesFailure("Unable to get message: " + databaseError.getMessage());
+                            mOnGetMessagesListener.onGetMessagesFailure("Unable to get messageFrom: " + databaseError.getMessage());
                         }
                     });
                 } else if (dataSnapshot.hasChild(room_type_2)) {
-                    Log.e(TAG, "getMessageFromFirebaseUser: " + room_type_2 + " exists");
+                    Log.e(TAG, "getMessageFromFirebaseUserRoom2: " + room_type_2 + " exists");
                     FirebaseDatabase.getInstance()
                             .getReference()
                             .child(Constants.ARG_CHAT_ROOMS)
@@ -192,16 +232,24 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                             Chat chat = dataSnapshot.getValue(Chat.class);
-                            Log.d(TAG, "jomblos");
                             try {
-                                String publickeyRsaFrom = Authenticator.getBundle(context, "publickey_rsa");
-                                String privatekeyRsaFrom = Authenticator.getBundle(context, "privatekey_rsa");
-                                mFileEncryptionManager.setRSAKey(publickeyRsaFrom, privatekeyRsaFrom, true);
-                                byte[] decryptByte = mFileEncryptionManager.decryptByPrivateKey(Base64Utils.decode(chat.getMessage()));
-                                Log.d(TAG, "onDataChangeasdRoom2: "+ new String(decryptByte));
-                                chat.setMessage(new String(decryptByte));
+
+                                String email = Authenticator.getBundle(context, "email");
+                                Log.d(TAG, "ifcondition : "+ (chat.receiver.equals(email)));
+                                Log.d(TAG, "receiver" + chat.receiver);
+                                Log.d(TAG, "auth " + email);
+                                if (chat.receiver.equals(email)){
+                                    messageRsa = chat.getMessageTo();
+                                }
+                                else{
+                                    messageRsa = chat.getMessageFrom();
+                                }
+
+                                String privatekeyRsaTo = Authenticator.getBundle(context, "privatekey_rsa");
+                                String rsaDecrypt = RSAUtil.decrypt(messageRsa, privatekeyRsaTo);
+                                chat.setMessageFrom(rsaDecrypt);
                             }catch (Exception e){
-                                e.getMessage();
+                                Log.d(TAG, "errorRoom2"+e.getMessage());
                             }
                             mOnGetMessagesListener.onGetMessagesSuccess(chat);
                         }
@@ -223,17 +271,17 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-                            mOnGetMessagesListener.onGetMessagesFailure("Unable to get message: " + databaseError.getMessage());
+                            mOnGetMessagesListener.onGetMessagesFailure("Unable to get messageFrom: " + databaseError.getMessage());
                         }
                     });
                 } else {
-                    Log.e(TAG, "getMessageFromFirebaseUser: no such room available");
+                    Log.d(TAG, "elseOtherRoom");
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                mOnGetMessagesListener.onGetMessagesFailure("Unable to get message: " + databaseError.getMessage());
+                mOnGetMessagesListener.onGetMessagesFailure("Unable to get messageFrom: " + databaseError.getMessage());
             }
         });
     }

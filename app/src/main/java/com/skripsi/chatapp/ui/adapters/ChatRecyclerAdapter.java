@@ -62,7 +62,7 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         String alphabet = chat.sender.substring(0, 1);
 
-        myChatViewHolder.txtChatMessage.setText(chat.message);
+        myChatViewHolder.txtChatMessage.setText(chat.messageFrom);
         myChatViewHolder.txtUserAlphabet.setText(alphabet);
     }
 
@@ -71,7 +71,7 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         String alphabet = chat.sender.substring(0, 1);
 
-        otherChatViewHolder.txtChatMessage.setText(chat.message);
+        otherChatViewHolder.txtChatMessage.setText(chat.messageFrom);
         otherChatViewHolder.txtUserAlphabet.setText(alphabet);
     }
 

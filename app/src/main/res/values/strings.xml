@@ -15,7 +15,7 @@
     <string name="please_wait">Please wait...</string>
 
     <string name="font_family_roboto_light">sans-serif-thin</string>
-    <string name="type_a_message">Type a message...</string>
+    <string name="type_a_message">Type a messageFrom...</string>
     <string name="action_logout">Logout</string>
     <string name="title_activity_splash">SplashActivity</string>
     <string name="logout">Logout</string>

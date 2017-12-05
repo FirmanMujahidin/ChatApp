@@ -18,13 +18,13 @@ public interface ChatContract {
     }
 
     interface Presenter {
-        void sendMessage(Context context, Chat chat, String receiverFirebaseToken);
+        void sendMessage(Context context, Chat chat, String receiverFirebaseToken, String receiverRsaPublicKey, String receiverRsaPrivateKey);
 
         void getMessage(Context context, String senderUid, String receiverUid);
     }
 
     interface Interactor {
-        void sendMessageToFirebaseUser(Context context, Chat chat, String receiverFirebaseToken);
+        void sendMessageToFirebaseUser(Context context, Chat chat, String receiverFirebaseToken, String receiverRsaPublicKey, String receiverRsaPrivateKey);
 
         void getMessageFromFirebaseUser(Context context, String senderUid, String receiverUid);
     }

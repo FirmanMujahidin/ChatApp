@@ -29,7 +29,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener, 
     private RegisterPresenter mRegisterPresenter;
     private AddUserPresenter mAddUserPresenter;
 
-    private EditText mETxtEmail, mETxtPassword, mETxtConfirmPassword;
+    public EditText mETxtName, mETxtEmail, mETxtPassword, mETxtConfirmPassword;
     private Button mBtnRegister;
 
     private ProgressDialog mProgressDialog;
@@ -50,6 +50,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener, 
     }
 
     private void bindViews(View view) {
+//        mETxtName = (EditText) view.findViewById(R.id.edit_text_name);
         mETxtEmail = (EditText) view.findViewById(R.id.edit_text_email_id);
         mETxtPassword = (EditText) view.findViewById(R.id.edit_text_password);
         mETxtConfirmPassword = (EditText) view.findViewById(R.id.edit_text_password_confirm);
@@ -86,8 +87,13 @@ public class RegisterFragment extends Fragment implements View.OnClickListener, 
     }
 
     private void onRegister(View view) {
+//        String name = mETxtName.getText().toString();
         String emailId = mETxtEmail.getText().toString();
         String password = mETxtPassword.getText().toString();
+      /*  if (name.matches("")) {
+            Toast.makeText(getContext(), "You did not enter a name", Toast.LENGTH_SHORT).show();
+            mETxtName.setError("Your Name Empty");
+        }*/
         if (emailId.matches("")) {
             Toast.makeText(getContext(), "You did not enter a email", Toast.LENGTH_SHORT).show();
             mETxtEmail.setError("Your Email Empty");
