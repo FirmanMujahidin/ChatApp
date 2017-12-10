@@ -2,6 +2,8 @@ package com.skripsi.chatapp.fcm;
 
 import android.util.Log;
 
+import com.skripsi.chatapp.utils.Constants;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,7 +22,7 @@ import okhttp3.Response;
 public class FcmNotificationBuilder {
     public static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "FcmNotificationBuilder";
-    private static final String SERVER_API_KEY = "YOUR_SERVER_API_KEY";
+    private static final String SERVER_API_KEY = "AAAAwMNA54M:APA91bEChwEaE5zdJH1x2aL8q4k2cUSlWBegvwrWuFMWE-uDQ5HlQWNN7H9AKF3A--xK9pqXRO-9aoh-WHCKRc-_1ieAcUau2t98p_IcfeC6QHFNhnWLDAN0pkdlTUb6Dmj5sGKxDXIP";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
     private static final String AUTHORIZATION = "Authorization";
@@ -34,8 +36,8 @@ public class FcmNotificationBuilder {
     private static final String KEY_DATA = "data";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_UID = "uid";
-    private static final String KEY_FCM_TOKEN = "fcm_token";
-
+    private static final String KEY_FCM_TOKEN = Constants.ARG_PUSH_TOKEN;
+// "eknuSYrYHac:APA91bFQc0G7Awcp8WaI6wzDCRqbFKl5nLESd51b_gwDgX7dornVC8m9LnFBkBYLjTuoCMkqhfreM96vr0xuW0mKT2EH28bGcblrg5kDb1lRjJZSl4374DmseqeJlvRRwCJQv4sL1g0p"
     private String mTitle;
     private String mMessage;
     private String mUsername;
@@ -82,6 +84,7 @@ public class FcmNotificationBuilder {
     }
 
     public void send() {
+        Log.d(TAG, "sendFCM");
         RequestBody requestBody = null;
         try {
             requestBody = RequestBody.create(MEDIA_TYPE_JSON, getValidJsonBody().toString());

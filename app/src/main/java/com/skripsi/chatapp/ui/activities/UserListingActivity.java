@@ -1,5 +1,7 @@
 package com.skripsi.chatapp.ui.activities;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,15 +11,19 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.skripsi.chatapp.R;
 import com.skripsi.chatapp.base.BaseActivity;
 import com.skripsi.chatapp.core.logout.LogoutContract;
+import com.skripsi.chatapp.core.logout.LogoutInteractor;
 import com.skripsi.chatapp.core.logout.LogoutPresenter;
 import com.skripsi.chatapp.ui.adapters.UserListingPagerAdapter;
+import com.skripsi.chatapp.utils.Authenticator;
 
 public class UserListingActivity extends BaseActivity implements LogoutContract.View {
     private Toolbar mToolbar;
@@ -64,6 +70,10 @@ public class UserListingActivity extends BaseActivity implements LogoutContract.
         mTabLayoutUserListing.setupWithViewPager(mViewPagerUserListing);
 
         mLogoutPresenter = new LogoutPresenter(this);
+
+        String firebaseInstanceId= FirebaseInstanceId.getInstance().getToken();
+        Toast.makeText(getApplicationContext(), "Token : " + firebaseInstanceId, Toast.LENGTH_LONG).show();
+        Log.d("TAG ", "Token : " + firebaseInstanceId);
     }
 
     @Override
@@ -89,6 +99,15 @@ public class UserListingActivity extends BaseActivity implements LogoutContract.
                 .setPositiveButton(R.string.logout, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        AccountManager accountManager = AccountManager.get(UserListingActivity.this);
+                        Account[] accounts = accountManager.getAccountsByType(Authenticator.ACCOUNT_TYPE);
+                        if (accounts.length > 0) {
+                            Account accountToRemove = accounts[0];
+                            accountManager.removeAccount(accountToRemove, null, null);
+                        }
+                        Intent intent = new Intent(UserListingActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
                         dialog.dismiss();
                         mLogoutPresenter.logout();
 

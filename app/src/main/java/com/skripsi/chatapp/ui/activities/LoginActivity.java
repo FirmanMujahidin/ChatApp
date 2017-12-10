@@ -23,6 +23,13 @@ public class LoginActivity extends AppCompatActivity {
         context.startActivity(intent);
     }
 
+   /* public static void startActivity(Context context, int flags) {
+        Intent intent = new Intent(context, UserListingActivity.class);
+        intent.setFlags(flags);
+        context.startActivity(intent);
+    }*/
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

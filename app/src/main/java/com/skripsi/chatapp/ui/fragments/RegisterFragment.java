@@ -13,14 +13,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.skripsi.chatapp.R;
 import com.skripsi.chatapp.core.registration.RegisterContract;
 import com.skripsi.chatapp.core.registration.RegisterPresenter;
 import com.skripsi.chatapp.core.users.add.AddUserContract;
 import com.skripsi.chatapp.core.users.add.AddUserPresenter;
+import com.skripsi.chatapp.javalib.FileEncryptionManager;
+import com.skripsi.chatapp.models.User;
+import com.skripsi.chatapp.ui.activities.LoginActivity;
 import com.skripsi.chatapp.ui.activities.UserListingActivity;
 import com.google.firebase.auth.FirebaseUser;
+import com.skripsi.chatapp.utils.Constants;
+import com.skripsi.chatapp.utils.SharedPrefUtil;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class RegisterFragment extends Fragment implements View.OnClickListener, RegisterContract.View, AddUserContract.View {
@@ -30,7 +38,11 @@ public class RegisterFragment extends Fragment implements View.OnClickListener, 
     private AddUserPresenter mAddUserPresenter;
 
     public EditText mETxtName, mETxtEmail, mETxtPassword, mETxtConfirmPassword;
+    public String name;
     private Button mBtnRegister;
+
+    private final Pattern VALID_EMAIL_ADDRESS_REGEX =
+            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
     private ProgressDialog mProgressDialog;
 
@@ -50,7 +62,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener, 
     }
 
     private void bindViews(View view) {
-//        mETxtName = (EditText) view.findViewById(R.id.edit_text_name);
+        mETxtName = (EditText) view.findViewById(R.id.edit_text_name);
         mETxtEmail = (EditText) view.findViewById(R.id.edit_text_email_id);
         mETxtPassword = (EditText) view.findViewById(R.id.edit_text_password);
         mETxtConfirmPassword = (EditText) view.findViewById(R.id.edit_text_password_confirm);
@@ -86,28 +98,34 @@ public class RegisterFragment extends Fragment implements View.OnClickListener, 
         }
     }
 
+    private boolean validate(String emailStr, String password) {
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
+        return (password.length() > 0 || password.equals(";")) && matcher.find();
+    }
+
     private void onRegister(View view) {
-//        String name = mETxtName.getText().toString();
+        name = mETxtName.getText().toString();
         String emailId = mETxtEmail.getText().toString();
         String password = mETxtPassword.getText().toString();
-      /*  if (name.matches("")) {
-            Toast.makeText(getContext(), "You did not enter a name", Toast.LENGTH_SHORT).show();
+        String confirmPassword = mETxtConfirmPassword.getText().toString();
+        if (name.matches("")) {
             mETxtName.setError("Your Name Empty");
-        }*/
+        }
         if (emailId.matches("")) {
-            Toast.makeText(getContext(), "You did not enter a email", Toast.LENGTH_SHORT).show();
             mETxtEmail.setError("Your Email Empty");
         }
         if (password.matches("")) {
-            Toast.makeText(getContext(), "You did not enter a password", Toast.LENGTH_SHORT).show();
             mETxtPassword.setError("Your Password Empty");
         }
-        if (password.matches("")) {
-            Toast.makeText(getContext(), "You did not enter a password", Toast.LENGTH_SHORT).show();
+        if (confirmPassword.matches("")) {
             mETxtConfirmPassword.setError("Your Password Empty");
-        }else {
+        }
+        if (validate(emailId,password)){
             mRegisterPresenter.register(getActivity(), emailId, password);
             mProgressDialog.show();
+        }
+        else {
+            Toast.makeText(getActivity(), "Invalid email or password or confirm not valid", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -115,7 +133,26 @@ public class RegisterFragment extends Fragment implements View.OnClickListener, 
     public void onRegistrationSuccess(FirebaseUser firebaseUser) {
         mProgressDialog.setMessage(getString(R.string.adding_user_to_db));
         Toast.makeText(getActivity(), "Registration Successful!", Toast.LENGTH_SHORT).show();
-        mAddUserPresenter.addUser(getActivity().getApplicationContext(), firebaseUser);
+        FileEncryptionManager mFileEncryptionManager = FileEncryptionManager.getInstance();
+        try {
+            mFileEncryptionManager.generateKey();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        final String rsaPublicKey = mFileEncryptionManager.getPublicKey();
+        final String rsaPrivateKey = mFileEncryptionManager.getPrivateKey();
+        final String pushToken= FirebaseInstanceId.getInstance().getToken();
+
+        User user = new User(firebaseUser.getUid(),
+                this.name,
+                firebaseUser.getEmail(),
+                pushToken,
+                new SharedPrefUtil(getContext()).getString(Constants.ARG_FIREBASE_TOKEN),
+                rsaPublicKey,
+                rsaPrivateKey);
+
+        mAddUserPresenter.addUser(getActivity().getApplicationContext(), firebaseUser, user);
     }
 
     @Override
@@ -130,8 +167,8 @@ public class RegisterFragment extends Fragment implements View.OnClickListener, 
     public void onAddUserSuccess(String message) {
         mProgressDialog.dismiss();
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-        UserListingActivity.startActivity(getActivity(),
-                Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent intent = new Intent(this.getContext(), LoginActivity.class);
+        startActivity(intent);
     }
 
     @Override

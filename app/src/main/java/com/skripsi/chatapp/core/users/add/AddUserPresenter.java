@@ -3,7 +3,7 @@ package com.skripsi.chatapp.core.users.add;
 import android.content.Context;
 
 import com.google.firebase.auth.FirebaseUser;
-
+import com.skripsi.chatapp.models.User;
 
 
 public class AddUserPresenter implements AddUserContract.Presenter, AddUserContract.OnUserDatabaseListener {
@@ -16,8 +16,8 @@ public class AddUserPresenter implements AddUserContract.Presenter, AddUserContr
     }
 
     @Override
-    public void addUser(Context context, FirebaseUser firebaseUser) {
-        mAddUserInteractor.addUserToDatabase(context, firebaseUser);
+    public void addUser(Context context, FirebaseUser firebaseUser, User user) {
+        mAddUserInteractor.addUserToDatabase(context, firebaseUser, user);
     }
 
     @Override

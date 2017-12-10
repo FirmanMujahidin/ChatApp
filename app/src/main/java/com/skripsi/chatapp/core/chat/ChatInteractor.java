@@ -1,15 +1,12 @@
 package com.skripsi.chatapp.core.chat;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.scottyab.aescrypt.AESCrypt;
 import com.skripsi.chatapp.fcm.FcmNotificationBuilder;
-import com.skripsi.chatapp.javalib.Base64Utils;
-import com.skripsi.chatapp.javalib.FileEncryptionManager;
 import com.skripsi.chatapp.models.Chat;
 import com.skripsi.chatapp.utils.Authenticator;
 import com.skripsi.chatapp.utils.Constants;
@@ -23,7 +20,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
-import java.security.GeneralSecurityException;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Author: firman mujahidin
@@ -54,7 +54,7 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
     @Override
     public void sendMessageToFirebaseUser(final Context context, final Chat chat, final String receiverFirebaseToken, final String receiverRsaPublicKey, final String receiverRsaPrivateKey) {
         File saveEncryPath, saveDecryPath;
-        String publicKey, privateKey;
+        final String publicKey, privateKey;
 
         Log.d(TAG, "chatDebug"+ chat.getMessageFrom());
         Log.d(TAG, "chatDebug"+ chat.getMessageTo());
@@ -63,8 +63,7 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
 
 
         //ini implementai AES
-/*
-        String password = "password";
+    /*    String password = "password";
         String encryptedMsg = "WsZSUlTlZ+bbQBqrPFJpTZU/qNyOdozIaqNRH6trNLc=";
         String decrypteMsg = "Ini tes encrip aes";
         try {
@@ -76,29 +75,43 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
 
         }catch (GeneralSecurityException e){
             //handle error - could be due to incorrect password or tampered encryptedMsg
-        }
-*/
-
+        }*/
 
         File sdcard = Environment.getExternalStorageDirectory();
         saveEncryPath = new File(sdcard.getPath()+"/diapers_encry.txt");
         saveDecryPath = new File(sdcard.getPath()+"/diapers_decry.txt");
 
         try {
-            String publicKeyRsaTo = receiverRsaPublicKey;
+
             String publickeyRsaFrom = Authenticator.getBundle(context, "publickey_rsa");
             String privatekeyRsaFrom = Authenticator.getBundle(context, "privatekey_rsa");
+//            String passwordkeyAesFrom = Authenticator.getBundle(context, "firebaseToken");
+            String passwordkeyAesFrom = chat.senderUid;
             Log.d(TAG, "pubkeyFrom: "+publickeyRsaFrom);
             Log.d(TAG, "priKeyFrom: "+privatekeyRsaFrom);
 
+
+
+
             String rsaEncryptFrom = RSAUtil.encrypt(chat.getMessageFrom(), publickeyRsaFrom);
             String rsaEncryptTo = RSAUtil.encrypt(chat.getMessageFrom(), receiverRsaPublicKey);
-            Log.d(TAG, "rsaUtilEnc " + rsaEncryptFrom);
-            Log.d(TAG, "rsaUtilDec " + RSAUtil.decrypt(rsaEncryptFrom, privatekeyRsaFrom));
-            Log.d(TAG, "plaintext" + chat.getMessageFrom());
 
-            chat.setMessageFrom(rsaEncryptFrom);
-            chat.setMessageTo(rsaEncryptTo);
+            String aesEncryptFrom = AESCrypt.encrypt(passwordkeyAesFrom,rsaEncryptFrom);
+            String aesEncryptTo = AESCrypt.encrypt(passwordkeyAesFrom,rsaEncryptTo);
+
+
+
+            Log.d(TAG, "aesEncryptFrom : " + aesEncryptFrom);
+            Log.d(TAG, "aesDec : " + AESCrypt.decrypt(passwordkeyAesFrom, aesEncryptFrom));
+            Log.d(TAG, "passwordAes :  " + passwordkeyAesFrom);
+
+            Log.d(TAG, "publickeyRsaFrom : " + rsaEncryptFrom);
+            Log.d(TAG, "receiverRsaPublicKey : " + rsaEncryptTo);
+            Log.d(TAG, "rsaUtilDec : " + RSAUtil.decrypt(rsaEncryptFrom, privatekeyRsaFrom));
+            Log.d(TAG, "plaintext : " + chat.getMessageFrom());
+
+            chat.setMessageFrom(aesEncryptFrom);
+            chat.setMessageTo(aesEncryptTo);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -155,11 +168,11 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
     }
 
     @Override
-    public void getMessageFromFirebaseUser(final Context context, String senderUid, String receiverUid) {
+    public void getMessageFromFirebaseUser(final Context context, final String senderUid, String receiverUid) {
         Log.d(TAG, "senderUid : " + senderUid);
         final String room_type_1 = senderUid + "_" + receiverUid;
         final String room_type_2 = receiverUid + "_" + senderUid;
-
+//        Log.d(TAG, "tokenFirebas" + getIntent().getExtras().getString(Constants.ARG_FIREBASE_TOKEN));
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
         databaseReference.child(Constants.ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
@@ -176,29 +189,35 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                             try {
                                 Chat chat = dataSnapshot.getValue(Chat.class);
-                                String publickeyRsaFrom = Authenticator.getBundle(context, "publickey_rsa");
                                 String privatekeyRsaFrom = Authenticator.getBundle(context, "privatekey_rsa");
+                                String passwordkeyAesFrom = chat.senderUid;
                                 String email = Authenticator.getBundle(context, "email");
                                 Log.d(TAG, "ifcondition : "+ (chat.receiver.equals(email)));
                                 Log.d(TAG, "receiver" + chat.receiver);
                                 Log.d(TAG, "auth " + email);
+
                                 if (chat.receiver.equals(email)){
                                     messageRsa = chat.getMessageTo();
+
                                 }
                                 else{
                                     messageRsa = chat.getMessageFrom();
                                 }
 
-                                Log.d(TAG, "getMessagePubKey : " +publickeyRsaFrom);
                                 Log.d(TAG, "getMessagePrivKey : " +privatekeyRsaFrom);
 
-                                String rsaDecrypt = RSAUtil.decrypt(messageRsa, privatekeyRsaFrom);
-                                Log.d(TAG, "messageEnc" + chat.getMessageFrom());
-                                Log.d(TAG, "room1: "+ rsaDecrypt);
+
+                                String aesDecrypt = AESCrypt.decrypt(passwordkeyAesFrom, messageRsa);
+                                String rsaDecrypt = RSAUtil.decrypt(aesDecrypt, privatekeyRsaFrom);
+
+
+                                Log.d(TAG, "messageEnc : " + chat.getMessageFrom());
+                                Log.d(TAG, "aesDecrypt_room1: "+ aesDecrypt);
+                                Log.d(TAG, "rsaDecrypt_room1: "+ rsaDecrypt);
                                 chat.setMessageFrom(rsaDecrypt);
                                 mOnGetMessagesListener.onGetMessagesSuccess(chat);
                             } catch (Exception e) {
-                                Log.d(TAG, "errorRoom1"+e.getMessage());
+                                Log.d(TAG, "errorRoom1 : "+e.getMessage());
                                 e.getMessage();
                             }
                         }
@@ -233,8 +252,9 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                             Chat chat = dataSnapshot.getValue(Chat.class);
                             try {
-
+                                String privatekeyRsaTo = Authenticator.getBundle(context, "privatekey_rsa");
                                 String email = Authenticator.getBundle(context, "email");
+                                String passwordkeyAsaFrom = chat.senderUid;
                                 Log.d(TAG, "ifcondition : "+ (chat.receiver.equals(email)));
                                 Log.d(TAG, "receiver" + chat.receiver);
                                 Log.d(TAG, "auth " + email);
@@ -245,8 +265,12 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
                                     messageRsa = chat.getMessageFrom();
                                 }
 
-                                String privatekeyRsaTo = Authenticator.getBundle(context, "privatekey_rsa");
-                                String rsaDecrypt = RSAUtil.decrypt(messageRsa, privatekeyRsaTo);
+                                String aesDecrypt = AESCrypt.decrypt(passwordkeyAsaFrom,messageRsa);
+                                String rsaDecrypt = RSAUtil.decrypt(aesDecrypt, privatekeyRsaTo);
+
+                                Log.d(TAG, "messageEnc" + chat.getMessageFrom());
+                                Log.d(TAG, "rsaDecrypt_room2: "+ rsaDecrypt);
+                                Log.d(TAG, "aesDecryptFrom_room2: "+ aesDecrypt);
                                 chat.setMessageFrom(rsaDecrypt);
                             }catch (Exception e){
                                 Log.d(TAG, "errorRoom2"+e.getMessage());

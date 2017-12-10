@@ -7,9 +7,18 @@ package com.skripsi.chatapp.models;
  */
 public class Users {
 
+    private String name;
     private String emailId;
     private String lastMessage;
     private int notifCount;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getEmailId(){ return emailId; }
 

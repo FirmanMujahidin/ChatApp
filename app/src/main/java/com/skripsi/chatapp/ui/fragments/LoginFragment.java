@@ -18,6 +18,8 @@ import com.skripsi.chatapp.core.login.LoginPresenter;
 import com.skripsi.chatapp.ui.activities.RegisterActivity;
 import com.skripsi.chatapp.ui.activities.UserListingActivity;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class LoginFragment extends Fragment implements View.OnClickListener, LoginContract.View {
@@ -25,6 +27,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
 
     private EditText mETxtEmail, mETxtPassword;
     private Button mBtnLogin, mBtnRegister;
+    private final Pattern VALID_EMAIL_ADDRESS_REGEX =
+            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
     private ProgressDialog mProgressDialog;
 
@@ -89,19 +93,26 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Log
         }
     }
 
+    private boolean validate(String emailStr, String password) {
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
+        return (password.length() > 0 || password.equals(";")) && matcher.find();
+    }
+
     private void onLogin(View view) {
         String emailId = mETxtEmail.getText().toString();
         String password = mETxtPassword.getText().toString();
         if (emailId.matches("")) {
-            Toast.makeText(getContext(), "You did not enter a email", Toast.LENGTH_SHORT).show();
             mETxtEmail.setError("Your Email Empty");
         }
         if (password.matches("")) {
-            Toast.makeText(getContext(), "You did not enter a password", Toast.LENGTH_SHORT).show();
             mETxtPassword.setError("Your Password Empty");
-        }else {
+        }
+        if (validate(emailId,password)){
             mLoginPresenter.login(getActivity(), emailId, password);
             mProgressDialog.show();
+        }
+        else {
+            Toast.makeText(getActivity(), "Invalid email or password", Toast.LENGTH_SHORT).show();
         }
     }
 

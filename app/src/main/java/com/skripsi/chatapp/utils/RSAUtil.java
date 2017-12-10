@@ -36,13 +36,13 @@ public class RSAUtil {
     public static String decrypt(String message, String key){
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            byte[] bytes = Base64.decode(key, Base64.DEFAULT);
+            byte[] bytes = Base64.decode(key.getBytes("utf-8"), Base64.DEFAULT);
 
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(bytes);
             PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
 
 
-            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             return new String(cipher.doFinal(Base64.decode(message, Base64.DEFAULT)), "UTF-8");
         }catch (Exception e){
@@ -53,14 +53,14 @@ public class RSAUtil {
     public static String encrypt(String message, String key){
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            byte[] bytes = Base64.decode(key, Base64.DEFAULT);
+            byte[] bytes = Base64.decode(key.getBytes("UTF-8"), Base64.DEFAULT);
 
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(bytes);
             PublicKey publicKey = keyFactory.generatePublic(keySpec);
 
-            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            return Base64.encodeToString(cipher.doFinal(message.getBytes()), Base64.DEFAULT);
+            return Base64.encodeToString(cipher.doFinal(message.getBytes("UTF-8")), Base64.DEFAULT);
         }catch (Exception e){
             e.printStackTrace();
         }

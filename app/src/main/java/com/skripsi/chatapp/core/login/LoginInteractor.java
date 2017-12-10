@@ -63,6 +63,7 @@ public class LoginInteractor extends AppCompatActivity implements LoginContract.
                                     String email = dataSnapshot.child("email").getValue(String.class);
                                     String rsaPublicKkey = dataSnapshot.child("rsaPublicKey").getValue(String.class);
                                     String rsaPrivateKey = dataSnapshot.child("rsaPrivateKey").getValue(String.class);
+                                    String pushToken = dataSnapshot.child("pushToken").getValue(String.class);
 
                                     //do what you want with the email
                                     Account account = new Account(email, Authenticator.ACCOUNT_TYPE);
@@ -71,6 +72,7 @@ public class LoginInteractor extends AppCompatActivity implements LoginContract.
                                     bundle.putString("publickey_rsa",rsaPublicKkey);
                                     bundle.putString("privatekey_rsa",rsaPrivateKey);
                                     bundle.putString("email",email);
+                                    bundle.putString("pushToken",pushToken);
 
                                     accountManager.addAccountExplicitly(account, null, bundle);
                                     accountManager.setAuthToken(account, Authenticator.ACCOUNT_TYPE, uid);

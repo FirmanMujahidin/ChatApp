@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,8 +50,8 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
         args.putString(Constants.ARG_RECEIVER, receiver);
         args.putString(Constants.ARG_RECEIVER_UID, receiverUid);
         args.putString(Constants.ARG_FIREBASE_TOKEN, firebaseToken);
-        args.putString("receiverRsaPublicKey", receiverRsaPublicKey);
-        args.putString("receverRsaPrivateKey", receverRsaPrivateKey);
+        args.putString(Constants.ARG_RECEIVER_RSAPUBLICKEY, receiverRsaPublicKey);
+        args.putString(Constants.ARG_RECEIVER_RSAPRIVATEKEY, receverRsaPrivateKey);
 
         ChatFragment fragment = new ChatFragment();
         fragment.setArguments(args);
@@ -80,6 +81,8 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     private void bindViews(View view) {
         mRecyclerViewChat = (RecyclerView) view.findViewById(R.id.recycler_view_chat);
         mETxtMessage = (EditText) view.findViewById(R.id.edit_text_message);
+
+
     }
 
     @Override
@@ -103,7 +106,14 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (actionId == EditorInfo.IME_ACTION_SEND) {
+        String message = mETxtMessage.getText().toString();
+        if (message.matches("")) {
+            mETxtMessage.setError("Message is Empty");
+        }
+        else if (message.matches(" ")){
+            mETxtMessage.setError("Message is Empty");
+        }
+        else if (actionId == EditorInfo.IME_ACTION_SEND) {
             sendMessage();
             return true;
         }
@@ -113,8 +123,9 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     private void sendMessage() {
         String message = mETxtMessage.getText().toString();
         String messageTo = mETxtMessage.getText().toString();
-        String receiverRsaPublicKey  = getArguments().getString("receiverRsaPublicKey");
-        String receiverRsaPrivateKey = getArguments().getString("receverRsaPrivateKey");
+
+        String receiverRsaPublicKey  = getArguments().getString(Constants.ARG_RECEIVER_RSAPUBLICKEY);
+        String receiverRsaPrivateKey = getArguments().getString(Constants.ARG_RECEIVER_RSAPRIVATEKEY);
 
         String receiver = getArguments().getString(Constants.ARG_RECEIVER);
         String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);
@@ -137,8 +148,8 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
 
     @Override
     public void onSendMessageSuccess() {
-        mETxtMessage.setText("");
-        Toast.makeText(getActivity(), "Message sent", Toast.LENGTH_SHORT).show();
+            mETxtMessage.setText("");
+            Toast.makeText(getActivity(), "Message sent", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -168,4 +179,5 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
                     pushNotificationEvent.getUid());
         }
     }
+
 }
