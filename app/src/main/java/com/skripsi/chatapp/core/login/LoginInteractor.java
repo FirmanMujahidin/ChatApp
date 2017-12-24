@@ -64,6 +64,9 @@ public class LoginInteractor extends AppCompatActivity implements LoginContract.
                                     String rsaPublicKkey = dataSnapshot.child("rsaPublicKey").getValue(String.class);
                                     String rsaPrivateKey = dataSnapshot.child("rsaPrivateKey").getValue(String.class);
                                     String pushToken = dataSnapshot.child("pushToken").getValue(String.class);
+                                    String firebaseToken = dataSnapshot.child("firebaseToken").getValue(String.class);
+                                    String name = dataSnapshot.child("name").getValue(String.class);
+                                    String uid = dataSnapshot.child("uid").getValue(String.class);
 
                                     //do what you want with the email
                                     Account account = new Account(email, Authenticator.ACCOUNT_TYPE);
@@ -72,6 +75,9 @@ public class LoginInteractor extends AppCompatActivity implements LoginContract.
                                     bundle.putString("publickey_rsa",rsaPublicKkey);
                                     bundle.putString("privatekey_rsa",rsaPrivateKey);
                                     bundle.putString("email",email);
+                                    bundle.putString("firebaseToken", firebaseToken);
+                                    bundle.putString("name", name);
+                                    bundle.putString("uid", uid);
                                     bundle.putString("pushToken",pushToken);
 
                                     accountManager.addAccountExplicitly(account, null, bundle);

@@ -6,6 +6,7 @@ package com.skripsi.chatapp.models;
  * Project: Chatapp
  */
 public class Chat  {
+    public String userName;
     public String sender;
     public String receiver;
     public String senderUid;
@@ -18,7 +19,8 @@ public class Chat  {
 
     }
 
-    public Chat(String sender, String receiver, String senderUid, String receiverUid, String messageFrom, String messageTo, long timestamp){
+    public Chat(String userName,String sender, String receiver, String senderUid, String receiverUid, String messageFrom, String messageTo, long timestamp){
+        this.userName = userName;
         this.sender = sender;
         this.receiver = receiver;
         this.senderUid = senderUid;
@@ -44,4 +46,13 @@ public class Chat  {
     public void setMessageTo(String messageTo) {
         this.messageTo = messageTo;
     }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
 }

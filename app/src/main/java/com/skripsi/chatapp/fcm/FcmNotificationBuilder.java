@@ -42,12 +42,38 @@ public class FcmNotificationBuilder {
     private String mMessage;
     private String mUsername;
     private String mUid;
-    private String mFirebaseToken;
+    private String mFcmToken;
     private String mReceiverFirebaseToken;
+    private String nama;
+    private String rsaPublicKeyTo;
+    private String rsaPrivateKeyTo;
+    private String firebaseTokens;
+
 
     private FcmNotificationBuilder() {
 
     }
+
+    public FcmNotificationBuilder nama(String nama) {
+        this.nama = nama;
+        return this;
+    }
+
+    public FcmNotificationBuilder rsaPublicKeyTo(String rsaPublicKeyTo) {
+        this.rsaPublicKeyTo = rsaPublicKeyTo;
+        return this;
+    }
+
+    public FcmNotificationBuilder rsaPrivateKeyTo(String rsaPrivateKeyTo) {
+        this.rsaPrivateKeyTo = rsaPrivateKeyTo;
+        return this;
+    }
+
+    public FcmNotificationBuilder firebaseTokens(String firebaseTokens) {
+        this.firebaseTokens = firebaseTokens;
+        return this;
+    }
+
 
     public static FcmNotificationBuilder initialize() {
         return new FcmNotificationBuilder();
@@ -73,8 +99,8 @@ public class FcmNotificationBuilder {
         return this;
     }
 
-    public FcmNotificationBuilder firebaseToken(String firebaseToken) {
-        mFirebaseToken = firebaseToken;
+    public FcmNotificationBuilder fcmToken(String fcmToken) {
+        mFcmToken = fcmToken;
         return this;
     }
 
@@ -122,7 +148,11 @@ public class FcmNotificationBuilder {
         jsonObjectData.put(KEY_TEXT, mMessage);
         jsonObjectData.put(KEY_USERNAME, mUsername);
         jsonObjectData.put(KEY_UID, mUid);
-        jsonObjectData.put(KEY_FCM_TOKEN, mFirebaseToken);
+        jsonObjectData.put(KEY_FCM_TOKEN, mFcmToken);
+        jsonObjectData.put("nama", nama);
+        jsonObjectData.put("receiverRsaPublicKey", rsaPublicKeyTo);
+        jsonObjectData.put("receverRsaPrivateKey", rsaPrivateKeyTo);
+        jsonObjectData.put("firebaseTokens", firebaseTokens);
         jsonObjectBody.put(KEY_DATA, jsonObjectData);
 
         return jsonObjectBody;

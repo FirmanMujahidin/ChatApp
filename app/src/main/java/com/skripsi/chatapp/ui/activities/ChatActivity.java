@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.skripsi.chatapp.FirebaseChatMainApp;
@@ -43,7 +44,24 @@ public class ChatActivity extends BaseActivity {
         initToolbar(true);
         bindViews();
         init();
+        Intent intent = getIntent();
+        String name = intent.getStringExtra(Constants.ARG_NAME);
+        String email = intent.getStringExtra(Constants.ARG_RECEIVER);
+        String uid = intent.getStringExtra(Constants.ARG_RECEIVER_UID);
+        String rsaPublicKey = intent.getStringExtra(Constants.ARG_RECEIVER_RSAPUBLICKEY);
+        String rsaPrivateKey = intent.getStringExtra(Constants.ARG_RECEIVER_RSAPRIVATEKEY);
+        String firebaseToken = intent.getStringExtra(Constants.ARG_FIREBASE_TOKEN);
+
+//        intent.putExtra(Constants.ARG_RECEIVER,receiver);
+//        intent.putExtra(Constants.ARG_RECEIVER_UID,receiverUid);
+//        intent.putExtra(Constants.ARG_RECEIVER_RSAPUBLICKEY,rsaPublicKeyTo);
+//        intent.putExtra(Constants.ARG_RECEIVER_RSAPRIVATEKEY,rsaPrivateKeyTo);
+//        intent.putExtra(Constants.ARG_FIREBASE_TOKEN,firebaseToken);
+
+
     }
+
+
 
     private void bindViews() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);

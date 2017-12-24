@@ -21,7 +21,7 @@
         android:maxEms="1"
         android:textAllCaps="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/grey_100"
+        android:textColor="@color/grey_700"
         android:textStyle="bold"
         tools:text="a" />
 
@@ -36,7 +36,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/grey_700"
+        android:textColor="@android:color/white"
         tools:text="abcd@xyz.com" />
 
 

@@ -15,9 +15,9 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:background="@drawable/ic_launcher"/>
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:background="@drawable/logo_chat"/>
     </LinearLayout>
 
     <LinearLayout
@@ -30,33 +30,39 @@
         <android.support.design.widget.TextInputLayout
             android:visibility="visible"
             android:layout_width="match_parent"
+            android:textColorHint="@android:color/white"
             android:layout_height="wrap_content">
             <EditText
                 android:id="@+id/edit_text_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:hint="Nama Lengkap"
                 android:inputType="textPersonName" />
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
+            android:textColorHint="@android:color/white"
             android:layout_height="wrap_content">
             <EditText
                 android:id="@+id/edit_text_email_id"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:hint="@string/email"
                 android:inputType="textEmailAddress" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
+            android:textColorHint="@android:color/white"
             android:layout_height="wrap_content">
             <com.scottyab.showhidepasswordedittext.ShowHidePasswordEditText
                 android:id="@+id/edit_text_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/password"
+                android:textColor="@android:color/white"
                 app:drawable_show="@drawable/ic_custom_show"
                 app:drawable_hide="@drawable/ic_custom_hide"
                 android:inputType="textPassword" />
@@ -64,11 +70,13 @@
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
+            android:textColorHint="@android:color/white"
             android:layout_height="wrap_content">
             <com.scottyab.showhidepasswordedittext.ShowHidePasswordEditText
                 android:id="@+id/edit_text_password_confirm"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:hint="@string/confirm_password"
                 app:drawable_show="@drawable/ic_custom_show"
                 app:drawable_hide="@drawable/ic_custom_hide"
@@ -91,8 +99,10 @@
             android:id="@+id/button_register"
             style="?attr/borderlessButtonStyle"
             android:layout_width="match_parent"
+            android:textColor="@android:color/holo_blue_dark"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_rounded_bg"
+            android:textStyle="bold"
             android:text="@string/register"/>
 
     </RelativeLayout>

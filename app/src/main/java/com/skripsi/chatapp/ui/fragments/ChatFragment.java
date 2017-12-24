@@ -5,13 +5,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +23,7 @@ import com.skripsi.chatapp.core.chat.ChatPresenter;
 import com.skripsi.chatapp.events.PushNotificationEvent;
 import com.skripsi.chatapp.models.Chat;
 import com.skripsi.chatapp.ui.adapters.ChatRecyclerAdapter;
+import com.skripsi.chatapp.utils.Authenticator;
 import com.skripsi.chatapp.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -30,10 +33,10 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.ArrayList;
 
 
-
-public class ChatFragment extends Fragment implements ChatContract.View, TextView.OnEditorActionListener {
+public class ChatFragment extends Fragment implements ChatContract.View, TextView.OnEditorActionListener{
     private RecyclerView mRecyclerViewChat;
     private EditText mETxtMessage;
+    private ImageView mBtnSend;
 
     private ProgressDialog mProgressDialog;
 
@@ -77,11 +80,16 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
         bindViews(fragmentView);
         return fragmentView;
     }
-
     private void bindViews(View view) {
         mRecyclerViewChat = (RecyclerView) view.findViewById(R.id.recycler_view_chat);
         mETxtMessage = (EditText) view.findViewById(R.id.edit_text_message);
+        mBtnSend = (ImageView) view.findViewById(R.id.btn_send);
 
+        mETxtMessage.setOnKeyListener(keyListener);
+
+        mBtnSend.setOnClickListener(clickListener);
+
+        mETxtMessage.addTextChangedListener(watcher1);
 
     }
 
@@ -104,7 +112,88 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
                 getArguments().getString(Constants.ARG_RECEIVER_UID));
     }
 
-    @Override
+
+
+    private EditText.OnKeyListener keyListener = new View.OnKeyListener() {
+        @Override
+        public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+            // If the event is a key-down event on the "enter" button
+            /*if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                    (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                // Perform action on key press
+                if (v == mETxtMessage) {
+                    sendMessage();
+                }
+            }
+            return true;*/
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                switch (keyCode) {
+                    case KeyEvent.KEYCODE_DPAD_CENTER:
+                    case KeyEvent.KEYCODE_ENTER:
+                        sendMessage();
+                        return true;
+                    default:
+                        break;
+                }
+            }
+            return true;
+        }
+    };
+
+
+    private ImageView.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String message = mETxtMessage.getText().toString();
+            if (message.matches("")) {
+                mETxtMessage.setError("Message is Empty");
+            }else if (message.matches(" ")){
+                mETxtMessage.setError("Message is Empty");
+            }else if (message.matches("  ")){
+                mETxtMessage.setError("Message is Empty");
+            }else if (message.matches("   ")){
+                mETxtMessage.setError("Message is Empty");
+            }else if (message.matches("    ")){
+                mETxtMessage.setError("Message is Empty");
+            }else if (message.matches("     ")){
+                mETxtMessage.setError("Message is Empty");
+            }else if(v==mBtnSend) {
+                sendMessage();
+            }else {
+                mETxtMessage.setText("");
+            }
+        }
+
+
+    };
+
+    private final TextWatcher watcher1 = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+            if (mETxtMessage.getText().toString().equals("")) {
+
+            } else {
+                mBtnSend.setImageResource(R.drawable.ic_chat_send);
+
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            if(editable.toString().length() <= 0){
+                mBtnSend.setImageResource(R.drawable.ic_chat_send);
+            }else{
+                mBtnSend.setImageResource(R.drawable.ic_chat_send_active);
+            }
+        }
+    };
+
+  /*  @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         String message = mETxtMessage.getText().toString();
         if (message.matches("")) {
@@ -118,21 +207,29 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
             return true;
         }
         return false;
+    }*/
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        return false;
     }
 
     private void sendMessage() {
         String message = mETxtMessage.getText().toString();
         String messageTo = mETxtMessage.getText().toString();
 
+
         String receiverRsaPublicKey  = getArguments().getString(Constants.ARG_RECEIVER_RSAPUBLICKEY);
         String receiverRsaPrivateKey = getArguments().getString(Constants.ARG_RECEIVER_RSAPRIVATEKEY);
 
+        String name = Authenticator.getBundle(getContext(),Constants.ARG_NAME);
         String receiver = getArguments().getString(Constants.ARG_RECEIVER);
         String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);
         String sender = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         String senderUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String receiverFirebaseToken = getArguments().getString(Constants.ARG_FIREBASE_TOKEN);
-        Chat chat = new Chat(sender,
+        Chat chat = new Chat(name,
+                sender,
                 receiver,
                 senderUid,
                 receiverUid,
@@ -179,5 +276,6 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
                     pushNotificationEvent.getUid());
         }
     }
+
 
 }

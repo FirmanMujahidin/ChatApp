@@ -11,15 +11,17 @@ public class PushNotificationEvent {
     private String username;
     private String uid;
     private String fcmToken;
+    private String firebaseToken;
     public PushNotificationEvent() {
     }
 
-    public PushNotificationEvent(String title, String message, String username, String uid, String fcmToken) {
+    public PushNotificationEvent(String title, String message, String username, String uid, String fcmToken, String firebaseToken) {
         this.title = title;
         this.message = message;
         this.username = username;
         this.uid = uid;
         this.fcmToken = fcmToken;
+        this.firebaseToken = firebaseToken;
     }
 
     public String getTitle() {

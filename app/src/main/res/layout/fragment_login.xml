@@ -14,9 +14,9 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:background="@drawable/ic_launcher"/>
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:background="@drawable/logo_chat"/>
     </LinearLayout>
 
     <LinearLayout
@@ -28,22 +28,28 @@
         android:layout_height="wrap_content">
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
+            android:textColorHint="@android:color/white"
+            android:shadowColor="@android:color/white"
             android:layout_height="wrap_content">
             <EditText
                 android:id="@+id/edit_text_email_id"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/email"
+                android:textColor="@android:color/white"
                 android:inputType="textEmailAddress" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
+            android:textColorHint="@android:color/white"
+            android:shadowColor="@android:color/white"
             android:layout_height="wrap_content">
             <com.scottyab.showhidepasswordedittext.ShowHidePasswordEditText
                 android:id="@+id/edit_text_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:hint="@string/password"
                 app:drawable_show="@drawable/ic_custom_show"
                 app:drawable_hide="@drawable/ic_custom_hide"
@@ -69,7 +75,9 @@
             style="?attr/borderlessButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_blue_dark"
             android:background="@drawable/btn_rounded_bg"
+            android:textStyle="bold"
             android:text="@string/login"/>
 
         <Button
@@ -78,6 +86,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
+            android:textColor="@android:color/white"
             android:layout_centerHorizontal="true"
             android:text="@string/login_register" />
 

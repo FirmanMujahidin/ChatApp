@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AndroidFirbaseChat.iml" filepath="$PROJECT_DIR$/AndroidFirbaseChat.iml" />
+      <module fileurl="file://D:\Android Native\ChatApp\AndroidFirbaseChat.iml" filepath="D:\Android Native\ChatApp\AndroidFirbaseChat.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ChatApp.iml" filepath="$PROJECT_DIR$/ChatApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

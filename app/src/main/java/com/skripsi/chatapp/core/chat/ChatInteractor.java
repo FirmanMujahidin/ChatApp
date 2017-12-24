@@ -20,6 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
+import java.security.GeneralSecurityException;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -85,6 +86,7 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
 
             String publickeyRsaFrom = Authenticator.getBundle(context, "publickey_rsa");
             String privatekeyRsaFrom = Authenticator.getBundle(context, "privatekey_rsa");
+            String name = Authenticator.getBundle(context, "name");
 //            String passwordkeyAesFrom = Authenticator.getBundle(context, "firebaseToken");
             String passwordkeyAesFrom = chat.senderUid;
             Log.d(TAG, "pubkeyFrom: "+publickeyRsaFrom);
@@ -137,12 +139,45 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
                     getMessageFromFirebaseUser(context, chat.senderUid, chat.receiverUid);
                 }
                 // send push notification to the receiver
-                sendPushNotificationToReceiver(chat.sender,
-                        chat.messageFrom,
-                        chat.senderUid,
-                        new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
-                        receiverFirebaseToken);
-                mOnSendMessageListener.onSendMessageSuccess();
+                // receiver push notification
+                try {
+                    String publickeyRsaFrom = Authenticator.getBundle(context, "publickey_rsa");
+                    String privatekeyRsaFrom = Authenticator.getBundle(context, "privatekey_rsa");
+                    String firebaseTokens = Authenticator.getBundle(context, "firebaseToken");
+                    String passwordkeyAesFrom = chat.senderUid;
+                    String name = Authenticator.getBundle(context, "name");
+                    String email = Authenticator.getBundle(context, "email");
+
+
+                    Log.d(TAG, "emailPush : " + email);
+                    Log.d(TAG, "ifConditionPush : "+ (chat.receiver.equals(email)));
+
+
+                    if (chat.receiver.equals(email)){
+                        messageRsa = chat.getMessageTo();
+
+                    }
+                    else{
+                        messageRsa = chat.getMessageFrom();
+                    }
+
+                    String aesDecrypt = AESCrypt.decrypt(passwordkeyAesFrom, messageRsa);
+                    String rsaDecrypt = RSAUtil.decrypt(aesDecrypt, privatekeyRsaFrom);
+
+
+                    sendPushNotificationToReceiver(chat.sender,
+                            rsaDecrypt,
+                            chat.senderUid,
+                            new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
+                            receiverFirebaseToken,
+                            name,
+                            publickeyRsaFrom,
+                            privatekeyRsaFrom,
+                            firebaseTokens);
+                    mOnSendMessageListener.onSendMessageSuccess();
+                } catch (GeneralSecurityException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -155,16 +190,25 @@ public class ChatInteractor extends AppCompatActivity implements ChatContract.In
     private void sendPushNotificationToReceiver(String username,
                                                 String message,
                                                 String uid,
-                                                String firebaseToken,
-                                                String receiverFirebaseToken) {
-                                                        FcmNotificationBuilder.initialize()
-                                                                .title(username)
-                                                                .message(message)
-                                                                .username(username)
-                                                                .uid(uid)
-                                                                .firebaseToken(firebaseToken)
-                                                                .receiverFirebaseToken(receiverFirebaseToken)
-                                                                .send();
+                                                String fcmToken,
+                                                String receiverFirebaseToken,
+                                                String nama,
+                                                String rsaPublicKeyTo,
+                                                String rsaPrivateKeyTo,
+                                                String firebaseTokens) {
+        FcmNotificationBuilder.initialize()
+                .title(username)
+                .message(message)
+                .username(username)
+                .uid(uid)
+                .fcmToken(fcmToken)
+                .receiverFirebaseToken(receiverFirebaseToken)
+                .nama(nama)
+                .rsaPublicKeyTo(rsaPublicKeyTo)
+                .rsaPrivateKeyTo(rsaPrivateKeyTo)
+                .firebaseTokens(firebaseTokens)
+                .send();
+
     }
 
     @Override

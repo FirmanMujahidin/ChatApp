@@ -13,6 +13,7 @@ import com.skripsi.chatapp.FirebaseChatMainApp;
 import com.skripsi.chatapp.R;
 import com.skripsi.chatapp.events.PushNotificationEvent;
 import com.skripsi.chatapp.ui.activities.ChatActivity;
+import com.skripsi.chatapp.ui.activities.UserListingActivity;
 import com.skripsi.chatapp.utils.Constants;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -43,21 +44,31 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             String message = remoteMessage.getData().get("text");
             String username = remoteMessage.getData().get("username");
             String uid = remoteMessage.getData().get("uid");
+            String rsaPublicKeyTo = remoteMessage.getData().get("receiverRsaPublicKey");
+            String rsaPrivateKeyTo = remoteMessage.getData().get("receverRsaPrivateKey");
             String fcmToken = remoteMessage.getData().get("fcm_token");
+            String nama = remoteMessage.getData().get("nama");
+            String firebaseToken = remoteMessage.getData().get("firebaseToken");
+
 
             // Don't show notification if chat activity is open.
             if (!FirebaseChatMainApp.isChatActivityOpen()) {
-                sendNotification(title,
+                sendNotification(nama,
                         message,
                         username,
                         uid,
-                        fcmToken);
+                        rsaPublicKeyTo,
+                        rsaPrivateKeyTo,
+                        fcmToken,
+                        nama,
+                        firebaseToken);
             } else {
                 EventBus.getDefault().post(new PushNotificationEvent(title,
                         message,
                         username,
                         uid,
-                        fcmToken));
+                        fcmToken,
+                        firebaseToken));
             }
         }
     }
@@ -69,10 +80,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                   String message,
                                   String receiver,
                                   String receiverUid,
+                                  String rsaPublicKeyTo,
+                                  String rsaPrivateKeyTo,
+                                  String fcmToken,
+                                  String name,
                                   String firebaseToken) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(Constants.ARG_RECEIVER, receiver);
         intent.putExtra(Constants.ARG_RECEIVER_UID, receiverUid);
+        intent.putExtra(Constants.ARG_RECEIVER_RSAPUBLICKEY, rsaPublicKeyTo);
+        intent.putExtra(Constants.ARG_RECEIVER_RSAPRIVATEKEY, rsaPrivateKeyTo);
+        intent.putExtra(Constants.ARG_FCM_TOKEN, fcmToken);
+        intent.putExtra(Constants.ARG_NAME, name);
         intent.putExtra(Constants.ARG_FIREBASE_TOKEN, firebaseToken);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
@@ -80,7 +99,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_messaging)
+                .setSmallIcon(R.drawable.chat_icon)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)

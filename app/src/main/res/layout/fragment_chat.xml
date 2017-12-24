@@ -1,29 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@drawable/bg_chat"
     android:layout_height="match_parent">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_chat"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/edit_text_message"
+        android:layout_above="@+id/layout_chat"
         app:layoutManager="LinearLayoutManager" />
-
-    <EditText
-        android:id="@+id/edit_text_message"
+    <LinearLayout
+        android:id="@+id/layout_chat"
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="@dimen/margin_small"
-        android:background="@drawable/rounded_rect_bg"
-        android:hint="@string/type_a_message"
-        android:imeOptions="actionSend"
-        android:inputType="text"
-        android:text="Ia tidak hanya bertahan selama 5 abad, tapi juga telah beralih ke penataan huruf elektronik, tanpa ada perubahan apapun. Ia mulai dipopulerkan pada tahun 1960 dengan diluncurkannya lembaran-lembaran Letraset yang menggunakan kalimat-kalimat dari Lorem Ipsum, dan seiring munculnya perangkat lunak Desktop Publishing seperti Aldus PageMaker juga memiliki versi Lorem Ipsum."
-        android:padding="@dimen/padding_small"/>
-        <!--android:maxLength="110"-->
+        android:orientation="horizontal"
+        android:minHeight="48dp">
+
+        <EditText
+            android:id="@+id/edit_text_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:background="@drawable/rounded_rect_bg"
+            android:hint="@string/type_a_message"
+            android:layout_weight="1"
+            android:inputType="text"
+            android:padding="@dimen/padding_small"
+            android:minHeight="48dp"
+            android:maxLength="110"
+            tools:ignore="Deprecated" />
+        <!--android:imeOptions="actionSend"-->
+
+        <ImageView
+            android:visibility="visible"
+            android:id="@+id/btn_send"
+            android:layout_width="64dp"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:layout_gravity="center"
+            android:paddingEnd="17dp"
+            android:paddingStart="13dp"
+            android:src="@drawable/ic_chat_send" />
+
+    </LinearLayout>
+
+
 
 </RelativeLayout>

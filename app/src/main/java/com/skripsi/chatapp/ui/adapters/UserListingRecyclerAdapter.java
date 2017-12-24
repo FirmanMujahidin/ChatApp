@@ -36,7 +36,7 @@ public class UserListingRecyclerAdapter extends RecyclerView.Adapter<UserListing
         User user = mUsers.get(position);
 
         if (user.email != null){
-            String alphabet = user.email.substring(0, 1);
+            String alphabet = user.name.substring(0, 1);
     
             holder.txtUsername.setText(user.name);
             holder.txtUserAlphabet.setText(alphabet);

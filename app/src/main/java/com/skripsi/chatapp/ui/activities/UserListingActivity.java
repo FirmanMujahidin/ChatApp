@@ -47,7 +47,7 @@ public class UserListingActivity extends BaseActivity implements LogoutContract.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         bind(R.layout.activity_user_listing);
-        initToolbar("ChatApp");
+        initToolbar("Juke Message");
         bindViews();
         init();
     }
